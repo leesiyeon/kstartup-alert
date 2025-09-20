@@ -72,7 +72,7 @@ export class StorageService {
 
         const { error: insertError } = await supabase
           .from(this.tableName)
-          .insert(batch)
+          .insert(batch as never)
           .select('id');
 
         if (insertError) {
@@ -190,8 +190,8 @@ export class StorageService {
 
       return {
         totalCount: count || 0,
-        oldestDate: oldestData?.[0]?.stored_at || null,
-        newestDate: newestData?.[0]?.stored_at || null,
+        oldestDate: (oldestData as any)?.[0]?.stored_at || null,
+        newestDate: (newestData as any)?.[0]?.stored_at || null,
         dbSizeInfo: 'Supabase PostgreSQL'
       };
     } catch (error) {

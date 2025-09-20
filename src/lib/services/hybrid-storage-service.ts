@@ -103,7 +103,7 @@ export class HybridStorageService {
         
         const { error: insertError } = await supabase
           .from(this.tableName)
-          .insert(batch);
+          .insert(batch as never);
 
         if (insertError) {
           throw new Error(`Supabase 삽입 실패: ${insertError.message}`);
