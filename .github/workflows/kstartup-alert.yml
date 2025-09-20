@@ -16,6 +16,17 @@ jobs:
         echo "🚀 K-startup 공고 확인 시작..."
         echo "⏰ 실행 시간: $(date)"
         
+        # 환경변수 확인
+        if [ -z "${{ secrets.VERCEL_APP_URL }}" ]; then
+          echo "❌ 오류: VERCEL_APP_URL이 설정되지 않았습니다."
+          echo "📋 설정 방법:"
+          echo "1. GitHub Repository → Settings → Secrets and variables → Actions"
+          echo "2. 'New repository secret' 클릭"
+          echo "3. Name: VERCEL_APP_URL"
+          echo "4. Value: https://your-app.vercel.app (실제 Vercel 배포 URL)"
+          exit 1
+        fi
+        
         # Vercel 배포된 API 호출
         echo "📡 API 호출 중: ${{ secrets.VERCEL_APP_URL }}/api/notifications/check"
         
