@@ -1,103 +1,212 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+  errors?: string[];
+}
+
+interface SchedulerStatus {
+  isRunning: boolean;
+  nextExecution: string | null;
+  timezone: string;
+}
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [loading, setLoading] = useState(false);
+  const [schedulerStatus, setSchedulerStatus] = useState<SchedulerStatus | null>(null);
+  const [lastResult, setLastResult] = useState<string>('');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // 컴포넌트 마운트 시 스케줄러 상태 확인
+  useEffect(() => {
+    fetchSchedulerStatus();
+  }, []);
+
+  const fetchSchedulerStatus = async () => {
+    try {
+      const response = await fetch('/api/scheduler');
+      const data = await response.json();
+      if (data.success) {
+        setSchedulerStatus(data.data);
+      }
+    } catch (error) {
+      console.error('스케줄러 상태 조회 실패:', error);
+    }
+  };
+
+  const handleApiCall = async (endpoint: string, method: string = 'POST', body?: any) => {
+    setLoading(true);
+    try {
+      const options: RequestInit = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      if (body && method !== 'GET') {
+        options.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(endpoint, options);
+      const data: ApiResponse = await response.json();
+      
+      setLastResult(JSON.stringify(data, null, 2));
+      
+      // 스케줄러 관련 API 호출 후 상태 업데이트
+      if (endpoint.includes('scheduler')) {
+        await fetchSchedulerStatus();
+      }
+      
+    } catch (error) {
+      setLastResult(`오류: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* 헤더 */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            🚀 K-startup 알림 시스템
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            K-startup 공고를 자동으로 모니터링하고 텔레그램으로 알림을 보내는 시스템입니다.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* 스케줄러 상태 */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+            📅 스케줄러 상태
+          </h2>
+          {schedulerStatus ? (
+            <div className="space-y-2">
+              <p className="flex items-center">
+                <span className="font-medium mr-2">상태:</span>
+                <span className={`px-2 py-1 rounded text-sm ${schedulerStatus.isRunning 
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}>
+                  {schedulerStatus.isRunning ? '실행 중' : '중지됨'}
+                </span>
+              </p>
+              <p><span className="font-medium">실행 주기:</span> {schedulerStatus.nextExecution || 'N/A'}</p>
+              <p><span className="font-medium">시간대:</span> {schedulerStatus.timezone}</p>
+            </div>
+          ) : (
+            <p className="text-gray-500">스케줄러 상태를 불러오는 중...</p>
+          )}
+        </div>
+
+        {/* 제어 버튼들 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {/* 연결 테스트 */}
+          <button
+            onClick={() => handleApiCall('/api/test/connections', 'GET')}
+            disabled={loading}
+            className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+          >
+            🔍 연결 테스트
+          </button>
+
+          {/* 공고 확인 */}
+          <button
+            onClick={() => handleApiCall('/api/notifications/check')}
+            disabled={loading}
+            className="bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+          >
+            📋 새 공고 확인
+          </button>
+
+          {/* 현재 공고 전송 */}
+          <button
+            onClick={() => handleApiCall('/api/notifications/send-current', 'POST', { limit: 3 })}
+            disabled={loading}
+            className="bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+          >
+            📤 현재 공고 전송
+          </button>
+
+          {/* 초기화 */}
+          <button
+            onClick={() => handleApiCall('/api/notifications/initialize', 'POST', { maxPages: 5 })}
+            disabled={loading}
+            className="bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-300 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+          >
+            🔄 DB 초기화
+          </button>
+
+          {/* 스케줄러 시작 */}
+          <button
+            onClick={() => handleApiCall('/api/scheduler', 'POST', { action: 'start' })}
+            disabled={loading || schedulerStatus?.isRunning}
+            className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+          >
+            ▶️ 스케줄러 시작
+          </button>
+
+          {/* 스케줄러 중지 */}
+          <button
+            onClick={() => handleApiCall('/api/scheduler', 'POST', { action: 'stop' })}
+            disabled={loading || !schedulerStatus?.isRunning}
+            className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+          >
+            ⏹️ 스케줄러 중지
+          </button>
+
+          {/* 스케줄러 수동 실행 */}
+          <button
+            onClick={() => handleApiCall('/api/scheduler', 'POST', { action: 'run-once' })}
+            disabled={loading}
+            className="bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+          >
+            🚀 즉시 실행
+          </button>
+        </div>
+
+        {/* 결과 표시 */}
+        {lastResult && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
+              📊 실행 결과
+            </h3>
+            <pre className="bg-gray-100 dark:bg-gray-700 rounded p-4 text-sm overflow-auto max-h-96 text-gray-800 dark:text-gray-200">
+              {lastResult}
+            </pre>
+          </div>
+        )}
+
+        {/* 로딩 표시 */}
+        {loading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-gray-900 dark:text-white">처리 중...</p>
+            </div>
+          </div>
+        )}
+
+        {/* 설정 안내 */}
+        <div className="mt-8 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
+          <h3 className="text-lg font-semibold mb-3 text-yellow-800 dark:text-yellow-200">
+            ⚙️ 설정 안내
+          </h3>
+          <div className="text-sm text-yellow-700 dark:text-yellow-300 space-y-2">
+            <p>1. <code className="bg-yellow-100 dark:bg-yellow-800 px-1 py-0.5 rounded">env.example</code> 파일을 참고하여 환경변수를 설정하세요.</p>
+            <p>2. 텔레그램 봇을 생성하고 <code className="bg-yellow-100 dark:bg-yellow-800 px-1 py-0.5 rounded">TELEGRAM_BOT_TOKEN</code>과 <code className="bg-yellow-100 dark:bg-yellow-800 px-1 py-0.5 rounded">TELEGRAM_CHAT_ID</code>를 설정하세요.</p>
+            <p>3. 연결 테스트를 통해 모든 설정이 올바른지 확인하세요.</p>
+            <p>4. <strong>🔄 DB 초기화</strong>를 실행하여 현재 진행 중인 모든 공고를 데이터베이스에 저장하세요.</p>
+            <p>5. 스케줄러를 시작하면 매시간 정각에 자동으로 새로운 공고를 확인합니다.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
