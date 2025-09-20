@@ -1,8 +1,7 @@
 {
-  "crons": [
-    {
-      "path": "/api/notifications/check",
-      "schedule": "0 9 * * *"
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 60
     }
-  ]
+  }
 }

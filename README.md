@@ -130,30 +130,46 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 배포 완료 후 더 이상 로컬 서버를 실행할 필요 없이 자동으로 알림을 받을 수 있습니다! 🎉
 
-## ⚠️ **Vercel Hobby 계정 제한사항**
+## 🚀 **자동 스케줄링: GitHub Actions**
 
-Vercel Hobby 계정은 **하루에 1번만** cron job 실행이 가능합니다.
+이 프로젝트는 **GitHub Actions**를 사용하여 **매시간 자동으로** K-startup 공고를 확인합니다.
 
-### 📅 **현재 설정**: 매일 오전 9시 (UTC)
-- 한국 시간 기준: **오후 6시**
-- 스케줄: `0 9 * * *`
+### ⏰ **실행 스케줄**
+- **주기**: 매시간 정각 (`0 * * * *`)
+- **플랫폼**: GitHub Actions (완전 무료)
+- **작동 방식**: Vercel 배포된 API를 호출
 
-### 🔄 **1시간마다 실행하려면**:
+### 🔧 **GitHub Actions 설정 방법**
 
-#### 옵션 1: **Vercel Pro 업그레이드** ($20/월)
-- 무제한 cron jobs
-- `vercel.json`에서 `"schedule": "0 * * * *"` 설정
+1. **GitHub Secrets 설정**:
+   - Repository → Settings → Secrets and variables → Actions
+   - `VERCEL_APP_URL` 추가: `https://your-app.vercel.app`
 
-#### 옵션 2: **GitHub Actions (무료)**
-- `.github/workflows/kstartup-alert.yml` 파일 사용
-- GitHub Secrets에 `VERCEL_APP_URL` 설정 필요
-- 매시간 자동 실행
+2. **자동 실행 확인**:
+   - Repository → Actions 탭에서 워크플로우 실행 상태 확인
+   - 매시간 정각에 자동 실행됨
 
-#### 옵션 3: **Railway.app (무료 티어)**
+3. **수동 실행**:
+   - Actions → K-startup Alert Scheduler → "Run workflow" 버튼
+
+### 🎯 **GitHub Actions 장점**
+- ✅ **완전 무료** (월 2,000분 제한, 충분함)
+- ✅ **매시간 실행** 가능
+- ✅ **안정적인 실행** 보장
+- ✅ **실행 로그** 상세 확인 가능
+- ✅ **실패 시 이메일 알림**
+
+### 🔄 **대안 배포 옵션들**
+
+#### 옵션 1: **Vercel Pro** ($20/월)
+- `vercel.json`에서 cron jobs 설정
+- 무제한 cron 실행
+
+#### 옵션 2: **Railway.app** (무료 티어)
 - `railway.json` 설정 파일 사용
 - 무료로 cron jobs 지원
 
-#### 옵션 4: **로컬 서버 + PM2**
+#### 옵션 3: **로컬 서버 + PM2**
 ```bash
 npm install -g pm2
 pm2 start npm --name "kstartup-alert" -- start

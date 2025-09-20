@@ -1,4 +1,4 @@
-name: K-startup Alert Scheduler
+name: 🚀 K-startup Alert Scheduler
 
 on:
   schedule:
@@ -11,24 +11,49 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Check K-startup Announcements
+    - name: 🔍 K-startup 공고 확인
       run: |
-        echo "K-startup 공고 확인 중..."
+        echo "🚀 K-startup 공고 확인 시작..."
+        echo "⏰ 실행 시간: $(date)"
         
         # Vercel 배포된 API 호출
+        echo "📡 API 호출 중: ${{ secrets.VERCEL_APP_URL }}/api/notifications/check"
+        
         response=$(curl -s -X POST "${{ secrets.VERCEL_APP_URL }}/api/notifications/check" \
           -H "Content-Type: application/json" \
-          -w "%{http_code}")
+          -H "User-Agent: GitHub-Actions-KStartup-Alert/1.0" \
+          -w "%{http_code}" \
+          --max-time 30 \
+          --retry 3 \
+          --retry-delay 5)
         
         http_code="${response: -3}"
         body="${response%???}"
         
-        echo "HTTP Status: $http_code"
-        echo "Response: $body"
+        echo "📊 HTTP Status: $http_code"
+        echo "📄 Response Body: $body"
         
         if [ "$http_code" = "200" ]; then
-          echo "✅ K-startup 공고 확인 성공"
+          echo "✅ K-startup 공고 확인 성공!"
+          
+          # JSON 파싱해서 결과 출력
+          new_count=$(echo "$body" | grep -o '"newAnnouncements":[0-9]*' | cut -d':' -f2 || echo "0")
+          total_count=$(echo "$body" | grep -o '"totalAnnouncements":[0-9]*' | cut -d':' -f2 || echo "0")
+          ongoing_count=$(echo "$body" | grep -o '"ongoingAnnouncements":[0-9]*' | cut -d':' -f2 || echo "0")
+          
+          echo "📈 총 공고: $total_count개"
+          echo "🔄 진행중: $ongoing_count개" 
+          echo "🆕 새 공고: $new_count개"
+          
+          if [ "$new_count" -gt "0" ]; then
+            echo "🎉 새로운 공고 $new_count개 알림 전송됨!"
+          else
+            echo "💤 새로운 공고가 없습니다."
+          fi
         else
-          echo "❌ K-startup 공고 확인 실패"
+          echo "❌ K-startup 공고 확인 실패 (HTTP $http_code)"
+          echo "🔍 응답 내용: $body"
           exit 1
         fi
+        
+        echo "✨ K-startup 공고 확인 완료!"
