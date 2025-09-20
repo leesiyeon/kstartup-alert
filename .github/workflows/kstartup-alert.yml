@@ -1,0 +1,34 @@
+name: K-startup Alert Scheduler
+
+on:
+  schedule:
+    # 매시간 정각에 실행 (UTC 기준)
+    - cron: '0 * * * *'
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  check-announcements:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check K-startup Announcements
+      run: |
+        echo "K-startup 공고 확인 중..."
+        
+        # Vercel 배포된 API 호출
+        response=$(curl -s -X POST "${{ secrets.VERCEL_APP_URL }}/api/notifications/check" \
+          -H "Content-Type: application/json" \
+          -w "%{http_code}")
+        
+        http_code="${response: -3}"
+        body="${response%???}"
+        
+        echo "HTTP Status: $http_code"
+        echo "Response: $body"
+        
+        if [ "$http_code" = "200" ]; then
+          echo "✅ K-startup 공고 확인 성공"
+        else
+          echo "❌ K-startup 공고 확인 실패"
+          exit 1
+        fi
