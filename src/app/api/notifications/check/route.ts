@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NotificationService } from '@/lib/services/notification-service';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     console.log('=== 공고 확인 API 호출됨 ===');
     
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   return NextResponse.json({
     message: '공고 확인을 실행하려면 POST 요청을 보내주세요.',
     endpoint: '/api/notifications/check',

@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   return NextResponse.json({
     message: '현재 공고를 전송하려면 POST 요청을 보내주세요.',
     endpoint: '/api/notifications/send-current',

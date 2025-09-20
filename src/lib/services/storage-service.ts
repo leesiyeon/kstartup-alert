@@ -1,7 +1,7 @@
 import { supabase, StoredAnnouncement } from '../supabase';
 import { KstartupAnnouncement } from './kstartup-api';
 
-export { StoredAnnouncement } from '../supabase';
+export type { StoredAnnouncement } from '../supabase';
 
 export class StorageService {
   private readonly tableName = 'announcements';
@@ -70,7 +70,7 @@ export class StorageService {
         const batch = storedAnnouncements.slice(i, i + batchSize);
         console.log(`배치 ${Math.floor(i / batchSize) + 1} 삽입 중... (${batch.length}개)`);
 
-        const { error: insertError, data } = await supabase
+        const { error: insertError } = await supabase
           .from(this.tableName)
           .insert(batch)
           .select('id');
@@ -176,13 +176,13 @@ export class StorageService {
         console.error('Supabase 개수 조회 오류:', countError);
       }
 
-      const { data: oldestData, error: oldestError } = await supabase
+      const { data: oldestData } = await supabase
         .from(this.tableName)
         .select('stored_at')
         .order('stored_at', { ascending: true })
         .limit(1);
 
-      const { data: newestData, error: newestError } = await supabase
+      const { data: newestData } = await supabase
         .from(this.tableName)
         .select('stored_at')
         .order('stored_at', { ascending: false })

@@ -33,7 +33,7 @@ export class NotificationService {
       
       // 1. 현재 진행 중인 공고 목록 조회 (더 많은 페이지 조회)
       console.log('1. 현재 진행 중인 공고 목록 조회 중...');
-      let allCurrentAnnouncements = [];
+      const allCurrentAnnouncements = [];
       let currentPage = 1;
       const maxPages = 3; // 최대 3페이지 조회 (300개 공고)
       
@@ -174,10 +174,14 @@ export class NotificationService {
     telegramBot: { success: boolean; message: string; botInfo?: Record<string, unknown>; chatInfo?: Record<string, unknown> };
     storage: { success: boolean; message: string; stats?: Record<string, unknown> };
   }> {
-    const results = {
+    const results: {
+      kstartupApi: { success: boolean; message: string };
+      telegramBot: { success: boolean; message: string; botInfo?: Record<string, unknown>; chatInfo?: Record<string, unknown> };
+      storage: { success: boolean; message: string; stats?: Record<string, unknown> };
+    } = {
       kstartupApi: { success: false, message: '' },
-      telegramBot: { success: false, message: '', botInfo: undefined, chatInfo: undefined },
-      storage: { success: false, message: '', stats: undefined }
+      telegramBot: { success: false, message: '' },
+      storage: { success: false, message: '' }
     };
 
     // K-startup API 테스트

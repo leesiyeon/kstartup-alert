@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NotificationService } from '@/lib/services/notification-service';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('=== 연결 테스트 API 호출됨 ===');
     

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const kstartupApi = new KstartupApiService();
     const storageService = new StorageService();
     
-    let allAnnouncements = [];
+    const allAnnouncements = [];
     let currentPage = 1;
     let totalProcessed = 0;
     
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   return NextResponse.json({
     message: '공고 초기화를 실행하려면 POST 요청을 보내주세요.',
     endpoint: '/api/notifications/initialize',

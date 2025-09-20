@@ -3,7 +3,7 @@ import path from 'path';
 import { supabase, StoredAnnouncement } from '../supabase';
 import { KstartupAnnouncement } from './kstartup-api';
 
-export { StoredAnnouncement } from '../supabase';
+export type { StoredAnnouncement } from '../supabase';
 
 export class HybridStorageService {
   private readonly tableName = 'announcements';

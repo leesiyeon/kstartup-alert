@@ -3,7 +3,7 @@ import { NotificationService } from './services/notification-service';
 
 class SchedulerService {
   private notificationService: NotificationService;
-  private cronJob: cron.ScheduledTask | null = null;
+  private cronJob: ReturnType<typeof cron.schedule> | null = null;
   private isRunning = false;
 
   constructor() {
@@ -38,7 +38,6 @@ class SchedulerService {
         console.error('❌ 스케줄러 실행 중 예외 발생:', error);
       }
     }, {
-      scheduled: false,
       timezone: 'Asia/Seoul'
     });
 
