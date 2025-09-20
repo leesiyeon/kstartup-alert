@@ -171,8 +171,8 @@ export class NotificationService {
    */
   async testConnections(): Promise<{
     kstartupApi: { success: boolean; message: string };
-    telegramBot: { success: boolean; message: string; botInfo?: any; chatInfo?: any };
-    storage: { success: boolean; message: string; stats?: any };
+    telegramBot: { success: boolean; message: string; botInfo?: Record<string, unknown>; chatInfo?: Record<string, unknown> };
+    storage: { success: boolean; message: string; stats?: Record<string, unknown> };
   }> {
     const results = {
       kstartupApi: { success: false, message: '' },

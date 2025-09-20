@@ -85,7 +85,7 @@ export class TelegramBotService {
   /**
    * 봇의 정보를 가져옵니다. (연결 테스트용)
    */
-  async getBotInfo(): Promise<any> {
+  async getBotInfo(): Promise<Record<string, unknown>> {
     try {
       const url = `${this.apiUrl}/getMe`;
       
@@ -107,7 +107,7 @@ export class TelegramBotService {
   /**
    * 채팅 정보를 가져옵니다. (연결 테스트용)
    */
-  async getChatInfo(): Promise<any> {
+  async getChatInfo(): Promise<Record<string, unknown>> {
     try {
       const url = `${this.apiUrl}/getChat`;
       
@@ -131,7 +131,7 @@ export class TelegramBotService {
   /**
    * 연결 테스트를 수행합니다.
    */
-  async testConnection(): Promise<{ success: boolean; message: string; botInfo?: any; chatInfo?: any }> {
+  async testConnection(): Promise<{ success: boolean; message: string; botInfo?: Record<string, unknown>; chatInfo?: Record<string, unknown> }> {
     try {
       const botInfo = await this.getBotInfo();
       console.log('봇 정보:', botInfo);

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 interface ApiResponse {
   success: boolean;
   message: string;
-  data?: any;
+  data?: Record<string, unknown>;
   errors?: string[];
 }
 
@@ -37,7 +37,7 @@ export default function Home() {
     }
   };
 
-  const handleApiCall = async (endpoint: string, method: string = 'POST', body?: any) => {
+  const handleApiCall = async (endpoint: string, method: string = 'POST', body?: Record<string, unknown>) => {
     setLoading(true);
     try {
       const options: RequestInit = {
