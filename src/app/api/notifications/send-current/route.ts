@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NotificationService } from '@/lib/services/notification-service';
+import { withAuth } from '@/lib/auth-middleware';
 
-export async function POST(request: NextRequest) {
+async function sendCurrentNotifications(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
     const limit = body.limit || 5;
@@ -37,6 +38,8 @@ export async function POST(request: NextRequest) {
     });
   }
 }
+
+export const POST = withAuth(sendCurrentNotifications);
 
 export async function GET(_request: NextRequest) {
   return NextResponse.json({

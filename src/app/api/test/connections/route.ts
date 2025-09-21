@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NotificationService } from '@/lib/services/notification-service';
+import { withAuth } from '@/lib/auth-middleware';
 
-export async function GET(_request: NextRequest) {
+async function testConnections(_request: NextRequest) {
   try {
     console.log('=== 연결 테스트 API 호출됨 ===');
     
@@ -41,3 +42,5 @@ export async function GET(_request: NextRequest) {
     });
   }
 }
+
+export const GET = withAuth(testConnections);

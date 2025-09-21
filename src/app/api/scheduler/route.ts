@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getScheduler } from '@/lib/scheduler';
 import { initializeApp } from '@/lib/startup';
+import { withAuth } from '@/lib/auth-middleware';
 
-export async function GET(_request: NextRequest) {
+async function getSchedulerStatus(_request: NextRequest) {
   try {
     // 앱 초기화 (스케줄러 자동 시작 포함)
     initializeApp();
@@ -29,7 +30,9 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export const GET = withAuth(getSchedulerStatus);
+
+async function controlScheduler(request: NextRequest) {
   try {
     // 앱 초기화 (스케줄러 자동 시작 포함)
     initializeApp();
@@ -88,3 +91,5 @@ export async function POST(request: NextRequest) {
     });
   }
 }
+
+export const POST = withAuth(controlScheduler);

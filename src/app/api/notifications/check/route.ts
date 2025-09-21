@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NotificationService } from '@/lib/services/notification-service';
 import { initializeApp } from '@/lib/startup';
+import { withAuthOrGitHubActions } from '@/lib/auth-middleware';
 
-export async function POST(_request: NextRequest) {
+async function checkNotifications(_request: NextRequest) {
   try {
     console.log('=== 공고 확인 API 호출됨 ===');
     
@@ -38,6 +39,8 @@ export async function POST(_request: NextRequest) {
     });
   }
 }
+
+export const POST = withAuthOrGitHubActions(checkNotifications);
 
 export async function GET(_request: NextRequest) {
   return NextResponse.json({

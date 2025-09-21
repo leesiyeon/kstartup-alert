@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface ApiResponse {
   success: boolean;
@@ -19,11 +20,34 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [schedulerStatus, setSchedulerStatus] = useState<SchedulerStatus | null>(null);
   const [lastResult, setLastResult] = useState<string>('');
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const router = useRouter();
 
-  // 컴포넌트 마운트 시 스케줄러 상태 확인
+  // 컴포넌트 마운트 시 인증 확인 및 스케줄러 상태 확인
   useEffect(() => {
-    fetchSchedulerStatus();
+    checkAuthentication();
   }, []);
+
+  const checkAuthentication = async () => {
+    try {
+      const response = await fetch('/api/auth/check');
+      const data = await response.json();
+      
+      if (data.authenticated) {
+        setAuthenticated(true);
+        // 인증된 경우에만 스케줄러 상태 확인
+        fetchSchedulerStatus();
+      } else {
+        setAuthenticated(false);
+        // 인증되지 않은 경우 로그인 페이지로 리디렉션
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('인증 확인 실패:', error);
+      setAuthenticated(false);
+      router.push('/login');
+    }
+  };
 
   const fetchSchedulerStatus = async () => {
     try {
@@ -68,17 +92,58 @@ export default function Home() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setAuthenticated(false);
+      router.push('/login');
+    } catch (error) {
+      console.error('로그아웃 오류:', error);
+    }
+  };
+
+  // 인증 확인 중이면 로딩 표시
+  if (authenticated === null) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">인증 확인 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 인증되지 않은 경우 (리디렉션 중)
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 dark:text-gray-400">로그인 페이지로 이동 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* 헤더 */}
-        <div className="text-center mb-8">
+        <div className="relative text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             🚀 K-startup 알림 시스템
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             K-startup 공고를 자동으로 모니터링하고 텔레그램으로 알림을 보내는 시스템입니다.
           </p>
+          
+          {/* 로그아웃 버튼 */}
+          <button
+            onClick={handleLogout}
+            className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            🚪 로그아웃
+          </button>
         </div>
 
         {/* 스케줄러 상태 */}
