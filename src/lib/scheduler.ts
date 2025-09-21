@@ -5,9 +5,24 @@ class SchedulerService {
   private notificationService: NotificationService;
   private cronJob: ReturnType<typeof cron.schedule> | null = null;
   private isRunning = false;
+  private autoStarted = false;
 
   constructor() {
     this.notificationService = new NotificationService();
+  }
+
+  /**
+   * 자동 시작 (서버 시작 시 한 번만 호출)
+   */
+  autoStart() {
+    if (this.autoStarted) {
+      console.log('스케줄러 자동 시작이 이미 완료되었습니다.');
+      return;
+    }
+
+    console.log('🚀 서버 시작 - K-startup 알림 스케줄러 자동 시작');
+    this.start();
+    this.autoStarted = true;
   }
 
   /**
@@ -97,6 +112,8 @@ let schedulerInstance: SchedulerService | null = null;
 export function getScheduler(): SchedulerService {
   if (!schedulerInstance) {
     schedulerInstance = new SchedulerService();
+    // 서버 시작 시 자동으로 스케줄러 시작
+    schedulerInstance.autoStart();
   }
   return schedulerInstance;
 }

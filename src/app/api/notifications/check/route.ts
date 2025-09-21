@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NotificationService } from '@/lib/services/notification-service';
+import { initializeApp } from '@/lib/startup';
 
 export async function POST(_request: NextRequest) {
   try {
     console.log('=== 공고 확인 API 호출됨 ===');
+    
+    // 앱 초기화 (스케줄러 자동 시작 포함)
+    initializeApp();
     
     const notificationService = new NotificationService();
     const result = await notificationService.checkAndNotify();

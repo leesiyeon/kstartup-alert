@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getScheduler } from '@/lib/scheduler';
+import { initializeApp } from '@/lib/startup';
 
 export async function GET(_request: NextRequest) {
   try {
+    // 앱 초기화 (스케줄러 자동 시작 포함)
+    initializeApp();
+    
     const scheduler = getScheduler();
     const status = scheduler.getStatus();
     
@@ -27,6 +31,9 @@ export async function GET(_request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // 앱 초기화 (스케줄러 자동 시작 포함)
+    initializeApp();
+    
     const body = await request.json().catch(() => ({}));
     const action = body.action;
     
