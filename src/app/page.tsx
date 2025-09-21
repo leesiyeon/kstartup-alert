@@ -14,6 +14,10 @@ interface SchedulerStatus {
   isRunning: boolean;
   nextExecution: string | null;
   timezone: string;
+  businessHours?: string;
+  currentTime?: string;
+  isBusinessHours?: boolean;
+  currentStatus?: string;
 }
 
 export default function Home() {
@@ -163,6 +167,17 @@ export default function Home() {
                 </span>
               </p>
               <p><span className="font-medium">실행 주기:</span> {schedulerStatus.nextExecution || 'N/A'}</p>
+              <p><span className="font-medium">업무시간:</span> {schedulerStatus.businessHours || 'N/A'}</p>
+              <p><span className="font-medium">현재 시간:</span> {schedulerStatus.currentTime || 'N/A'}</p>
+              <p className="flex items-center">
+                <span className="font-medium mr-2">현재 상태:</span>
+                <span className={`px-2 py-1 rounded text-sm ${schedulerStatus.isBusinessHours 
+                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                }`}>
+                  {schedulerStatus.currentStatus || 'N/A'}
+                </span>
+              </p>
               <p><span className="font-medium">시간대:</span> {schedulerStatus.timezone}</p>
             </div>
           ) : (
