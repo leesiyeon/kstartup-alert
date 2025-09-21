@@ -44,22 +44,24 @@ jobs:
           -H "Content-Type: application/json" \
           -H "User-Agent: GitHub-Actions-KStartup-Alert/1.0" \
           -H "Accept: application/json" \
-          -w "%{http_code}|%{redirect_url}|%{num_redirects}|%{time_total}" \
+          -w "\n---CURL_INFO---\n%{http_code}|%{redirect_url}|%{num_redirects}|%{time_total}" \
           --max-time 30 \
           --retry 3 \
           --retry-delay 5 \
           --connect-timeout 10)
         
-        # 응답 파싱 (형식: body|http_code|redirect_url|num_redirects|time_total)
-        IFS='|' read -r body http_code redirect_url num_redirects time_total <<< "$response"
+        # 응답 파싱 (Body와 curl 정보 분리)
+        body=$(echo "$response" | sed '/---CURL_INFO---/,$d')
+        curl_info=$(echo "$response" | sed -n '/---CURL_INFO---/,$ p' | tail -n 1)
+        IFS='|' read -r http_code redirect_url num_redirects time_total <<< "$curl_info"
         
         echo "📊 응답 정보:"
         echo "  - HTTP Status: $http_code"
         echo "  - 응답 시간: ${time_total}초"
         echo "  - Response Body: $body"
         
-        # 리디렉션 정보 출력
-        if [ "$num_redirects" -gt "0" ]; then
+        # 리디렉션 정보 출력 (숫자 검증 후)
+        if [[ "$num_redirects" =~ ^[0-9]+$ ]] && [ "$num_redirects" -gt "0" ]; then
           echo "🔄 리디렉션 발생:"
           echo "  - 리디렉션 횟수: $num_redirects번"
           echo "  - 최종 URL: $redirect_url"
@@ -72,6 +74,11 @@ jobs:
           new_count=$(echo "$body" | grep -o '"newAnnouncements":[0-9]*' | cut -d':' -f2 || echo "0")
           total_count=$(echo "$body" | grep -o '"totalAnnouncements":[0-9]*' | cut -d':' -f2 || echo "0")
           ongoing_count=$(echo "$body" | grep -o '"ongoingAnnouncements":[0-9]*' | cut -d':' -f2 || echo "0")
+          
+          # 숫자 검증 (빈 값 처리)
+          [[ ! "$new_count" =~ ^[0-9]+$ ]] && new_count="0"
+          [[ ! "$total_count" =~ ^[0-9]+$ ]] && total_count="0"
+          [[ ! "$ongoing_count" =~ ^[0-9]+$ ]] && ongoing_count="0"
           
           echo "📈 총 공고: $total_count개"
           echo "🔄 진행중: $ongoing_count개" 
